@@ -31,10 +31,6 @@
                 return Math.pow(2.0, -(z / 500.0));
             }
             
-            function scale(val, z) {
-                return val * factor(z);
-            }
-
             function projectX(x, z) {
                 return project(x, WIDTH, gfx.getWidth(), z);
             }
@@ -51,6 +47,14 @@
                 return (y / gfx.getHeight()) * HEIGHT;
             }
             
+            function scaleX(x, z) {
+                return (x / WIDTH) * gfx.getWidth();
+            }
+
+            function scaleY(y, z) {
+                return (y / HEIGHT) * gfx.getHeight();
+            }
+
             function project(val, total, projected, z) {
                 var zoomed = projected * factor(z);
                 var boxed = (projected / 2) - (zoomed / 2);
@@ -58,11 +62,12 @@
             }
             
             return {
-                scale: scale,
                 unX: unX,
                 unY: unY,
                 projectX: projectX,
-                projectY: projectY
+                projectY: projectY,
+                scaleX: scaleX,
+                scaleY: scaleY
             };
         }());
         
@@ -124,8 +129,8 @@
                    image,
                    projection.projectX(x, z),
                    projection.projectY(y, z),
-                   projection.scale(width, z),
-                   projection.scale(height, z)
+                   projection.scaleX(width, z),
+                   projection.scaleY(height, z)
                );
            }
 
@@ -271,9 +276,9 @@
             }
             
             function update(newx, newy) {
-                $('#debug').html("x: " + newx + " y: " + newy);
                 x = Math.min(newx, WIDTH - width);
                 y = Math.min(newy, HEIGHT - height);
+                $('#debug').html("x: " + x + " y: " + y);
             }
             
             return {
