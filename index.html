@@ -1,0 +1,392 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN"
+    "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+<head>    
+    <script type="text/javascript" src="jquery.js"></script>
+    <script type="text/javascript">
+        FPS = 50;
+        LINES = 10;
+        WIDTH = 1000;
+        HEIGHT = 750;
+        FACTOR = 0.25;
+        LINECOLOR = "#0f0";
+    
+        function profile(code) {
+            var start = new Date().getTime();
+            code();
+            var end = new Date().getTime();
+            return end - start;
+        }
+        
+        var settings = {
+            ballsize: 100
+        }
+    
+        /*
+         * Project a point from the pseudo 3d coordinate system
+         * into the normal screen space
+         */
+        var projection = (function() {
+            function factor(z) {
+                return Math.pow(2.0, -(z / 500.0));
+            }
+            
+            function scale(val, z) {
+                return val * factor(z);
+            }
+
+            function projectX(x, z) {
+                return project(x, WIDTH, gfx.getWidth(), z);
+            }
+            
+            function projectY(y, z) {
+                return project(y, HEIGHT, gfx.getHeight(), z);
+            }
+            
+            function unX(x, z) {
+                return (x / gfx.getWidth()) * WIDTH;
+            }
+            
+            function unY(y, z) {
+                return (y / gfx.getHeight()) * HEIGHT;
+            }
+            
+            function project(val, total, projected, z) {
+                var zoomed = projected * factor(z);
+                var boxed = (projected / 2) - (zoomed / 2);
+                return Math.floor(boxed + (val / total) * zoomed);
+            }
+            
+            return {
+                scale: scale,
+                unX: unX,
+                unY: unY,
+                projectX: projectX,
+                projectY: projectY
+            };
+        }());
+        
+        /*
+         * Helper methods for graphic output in our space
+         */
+        var gfx = (function() {
+           
+           var ctx, width, height;
+           
+           function clear() {
+               ctx.fillStyle = '#000';
+               ctx.fillRect(0, 0, width, height);               
+           }
+           
+           function color(red, green, blue) {
+               return "rgb(" + red + "," + green + "," + blue + ")";
+           }
+           
+           function drawRectReal(x1, y1, x2, y2, color) {
+               ctx.strokeStyle = color;
+               ctx.strokeRect(x1, y1, x2 - x1, y2 - y1);
+           }
+           
+           function drawLineReal(x1, y1, x2, y2, color) {
+               ctx.strokeStyle = color;
+               ctx.beginPath();
+               ctx.moveTo(x1, y1);
+               ctx.lineTo(x2, y2);
+               ctx.stroke();
+           }
+           
+           function drawSurfaceReal(image, x, y, width, height) {
+               ctx.drawImage(image, x, y, width, height)
+           }
+           
+           function drawRect(x1, y1, x2, y2, z, color) {
+               drawRectReal(
+                   projection.projectX(x1, z),
+                   projection.projectY(y1, z),
+                   projection.projectX(x2, z),
+                   projection.projectY(y2, z),
+                   color
+               );
+           }
+           
+           function drawLine(x1, y1, z1, x2, y2, z2, color) {
+               drawLineReal(
+                   projection.projectX(x1, z1),
+                   projection.projectY(y1, z1),
+                   projection.projectX(x2, z2),
+                   projection.projectY(y2, z2),
+                   color
+               );
+           }
+           
+           function drawSurface(image, x, y, width, height, z) {
+               drawSurfaceReal(
+                   image,
+                   projection.projectX(x, z),
+                   projection.projectY(y, z),
+                   projection.scale(width, z),
+                   projection.scale(height, z)
+               );
+           }
+
+           function init(id) {
+               var canvas = $(id);
+               ctx = canvas[0].getContext('2d');
+               width = canvas.width();
+               height = canvas.height();
+           }
+           
+           function getWidth() {
+               return width;
+           }
+           
+           function getHeight() {
+               return height;
+           }
+            
+            return {
+                clear: clear,
+                color: color,
+                drawRect: drawRect,
+                drawLine: drawLine,
+                drawSurface: drawSurface,
+                getHeight: getHeight,
+                init: init,
+                getWidth: getWidth
+            }
+        }());
+    
+        /*
+         * The background graphics
+         */
+        var background = (function() {
+            
+            function draw() {
+                // Adapt the color according to the z value
+                function colorOf(z) {
+                    var red = 0;
+                    var green = 255 - (1000 - z) * 0.017;
+                    var blue = 102 - (1000 - z) * 0.068;
+                    return gfx.color(red, green, blue);
+                }
+                
+                // Draw the rectangles
+                var last = -100;
+                for (var z = 0; z <= 1000; z += 1000 / LINES) {
+                    gfx.drawRect(0, 0, 1000, 750, z, colorOf(z));
+                    if (last >= 0) {
+                        gfx.drawLine(0, 0, last, 0, 0, z, colorOf(z));
+                        gfx.drawLine(1000, 0, last, 1000, 0, z, colorOf(z));
+                        gfx.drawLine(0, 750, last, 0, 750, z, colorOf(z));
+                        gfx.drawLine(1000, 750, last, 1000, 750, z, colorOf(z));
+                    }
+                    last = z;
+                }
+            }
+            
+            return {
+                draw: draw
+            }
+        }());
+        
+        /*
+         * The ball object
+         */
+        var ball = (function() {
+
+            var surface;
+            
+            var x,y,z;
+            var dx,dy,dz;
+            var ax,ay,az;
+            
+            function init() {
+                surface = document.getElementById('ball');
+                resetPosition();
+            }
+            
+            function resetPosition() {
+                x = 500 - settings.ballsize / 2;
+                y = 375 - settings.ballsize / 2;
+                z = 0;
+                dx = 0; dy = 0; dz = 0;
+                ax = 0; ay = 0; az = 0;
+            }
+            
+            function update(time) {                
+                // update positions according to speed
+                x += dx * time;
+                y += dy * time;
+                z += dz * time;
+                
+                // update speed according to acceleration
+                dx += ax * time;
+                dy += ay * time;
+                dz += az * time;
+                
+                // bounce
+                if (z >= 1000) {
+                    z = 2000 - z;
+                    dz = -dz;
+                }
+                
+                if (z <= 0) {
+                    z = -z;
+                    dz = -dz;
+                }
+            }
+            
+            function draw() {
+                // render ball
+                gfx.drawSurface(surface, x, y, settings.ballsize, settings.ballsize, z);
+                
+                // render rectangle indicating z position of ball
+                gfx.drawRect(0, 0, 1000, 750, z, gfx.color(93, 201, 198));
+            }
+            
+            return {
+                init: init,
+                draw: draw,
+                update: update
+            }
+        }());
+        
+        var pad = (function() {
+            
+            var width = 200;
+            var height = 160;
+            
+            var surface;
+            var x,y;
+            
+            function init() {
+                x = 500;
+                y = 500;
+                input.mousemove(update);
+                surface = document.getElementById('pad');
+            }
+            
+            function draw() {
+                gfx.drawSurface(surface, x, y, width, height, 0);
+            }
+            
+            function update(newx, newy) {
+                $('#debug').html("x: " + newx + " y: " + newy);
+                x = Math.min(newx, WIDTH - width);
+                y = Math.min(newy, HEIGHT - height);
+            }
+            
+            return {
+                init: init,
+                draw: draw
+            }
+        }());
+        
+        var input = (function() {
+            
+            var ele;
+            
+            function init(id) {
+                ele = $(id);
+            }
+            
+            function boundBy(value, min, max) {
+                return Math.min(max, Math.max(min, value));
+            }
+            
+            function mousemove(callback) {
+                $(document).mousemove(function (e) {
+                    // Translate to in game coordinates
+                    var offset = ele.offset();
+                    
+                    // Cut off if over the edges
+                    var x = boundBy(e.pageX - offset.left, 0, gfx.getWidth());
+                    var y = boundBy(e.pageY - offset.top, 0, gfx.getHeight());
+                    
+                    // Translate back to projection
+                    x = projection.unX(x, 0);
+                    y = projection.unY(y, 0);
+                    
+                    callback(x, y);
+                    
+                    game.update();
+                });
+            }
+        
+            return {
+                init: init,
+                mousemove: mousemove
+            }
+        }());
+    
+        var game = (function() {
+            
+            function init() {
+                // Initialize subsystems
+                gfx.init('#screen');
+                input.init('#screen');
+
+                // Initialize objects
+                ball.init();
+                pad.init();
+
+                // Initialize main loop
+                //setInterval(update, 1000 / FPS);
+            }
+
+            // Main game loop
+            function update() {
+                var time = 1.0 / FPS;
+                
+                var elapsed = profile(function() {
+                    // Update objects
+                    ball.update(time);
+                
+                    // Draw scene
+                    draw();
+                });
+            }
+                        
+            function draw() {
+                gfx.clear();
+                background.draw();
+                ball.draw();
+                pad.draw();
+            }
+            
+            $(document).ready(init);
+            
+            return {
+                update: update
+            }
+        }(jQuery, window));        
+    </script>
+    <style>
+        .surface {
+            display: none;
+        }
+        #screen {
+            cursor: none;
+        }
+        #wrapper {
+            margin-top: 100px;
+            text-align: center;
+            color: white;
+        }
+        body {
+            background-color: black;
+        }
+    </style>
+</head>
+<body>
+    <div id="wrapper">
+        <canvas id="screen" width="640" height="480">
+            You need a browser that supports the canvas tag to play CurveBall.
+        </canvas>
+        <div id="debug">debug output</div>
+    </div>
+    <!-- surfaces -->
+    <img id="ball" src="ball.png" class="surface" />
+    <img id="pad" src="pad.png" class="surface" />
+</body>
+</html>
