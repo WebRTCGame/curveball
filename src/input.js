@@ -28,9 +28,17 @@ var input = (function() {
             game.update();
         });
     }
+    
+    function mousedown(callback) {
+        $(document).click(function (e) {
+            e.preventDefault();
+            callback();
+        });
+    }
 
     return {
         init: init,
+        mousedown: mousedown,
         mousemove: mousemove
     }
 }());

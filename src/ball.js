@@ -6,6 +6,7 @@ DIRECTION_TOBACK = 0;
 DIRECTION_TOFRONT = 1;
 
 BALLSIZE = 120;
+SPEED = 300;
 
 var ball = (function() {
 
@@ -23,6 +24,9 @@ var ball = (function() {
     function init() {
         surface = document.getElementById('ball');
         resetPosition();
+        
+        input.mousedown(mousedown);
+        events.subscribe('service', service);
     }
     
     function resetPosition() {
@@ -56,6 +60,16 @@ var ball = (function() {
             z = -z;
             dz = -dz;
         }
+    }
+    
+    function mousedown() {
+        if (status == STATUS_SERVICE && direction == DIRECTION_TOBACK) {
+            events.fire('service');
+        }
+    }
+    
+    function service() {
+        dz = SPEED;
     }
     
     function draw() {

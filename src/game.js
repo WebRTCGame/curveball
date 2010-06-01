@@ -1,6 +1,6 @@
 var game = (function() {
     
-    var background;
+    var background, interval;
     
     function init() {
         // Initialize subsystems
@@ -11,9 +11,9 @@ var game = (function() {
         background = new Background();
         ball.init();
         pad.init();
-
-        // Initialize main loop
-        //setInterval(update, 1000 / FPS);
+        
+        // Register events
+        events.subscribe('service', service);
     }
 
     // Main game loop
@@ -34,6 +34,11 @@ var game = (function() {
         background.draw();
         ball.draw();
         pad.draw();
+    }
+    
+    function service() {
+        // activate timer
+        setInterval(update, 1000 / FPS);
     }
     
     $(document).ready(init);
