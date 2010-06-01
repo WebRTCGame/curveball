@@ -1,17 +1,17 @@
 LINES = 10;
 LINECOLOR = "#0f0";
 
-var background = (function() {
+var Background = Class.extend(function() {
+    
+    // Adapt the color according to the z value
+    function colorOf(z) {
+        var red = 0;
+        var green = 255 - (1000 - z) * 0.017;
+        var blue = 102 - (1000 - z) * 0.068;
+        return gfx.color(red, green, blue);
+    }
     
     function draw() {
-        // Adapt the color according to the z value
-        function colorOf(z) {
-            var red = 0;
-            var green = 255 - (1000 - z) * 0.017;
-            var blue = 102 - (1000 - z) * 0.068;
-            return gfx.color(red, green, blue);
-        }
-        
         // Draw the rectangles
         var last = -100;
         for (var z = 0; z <= 1000; z += 1000 / LINES) {

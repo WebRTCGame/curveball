@@ -1,11 +1,14 @@
 var game = (function() {
     
+    var background;
+    
     function init() {
         // Initialize subsystems
         gfx.init('#screen');
         input.init('#screen');
 
         // Initialize objects
+        background = new Background();
         ball.init();
         pad.init();
 

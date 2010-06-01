@@ -5,6 +5,8 @@ STATUS_OUT = 2;
 DIRECTION_TOBACK = 0;
 DIRECTION_TOFRONT = 1;
 
+BALLSIZE = 120;
+
 var ball = (function() {
 
     var surface;
@@ -12,6 +14,9 @@ var ball = (function() {
     var x,y,z;
     var dx,dy,dz;
     var ax,ay,az;
+    
+    var width = BALLSIZE;
+    var height = BALLSIZE;
     
     var status, direction;
     
@@ -21,8 +26,8 @@ var ball = (function() {
     }
     
     function resetPosition() {
-        x = 500 - settings.ballsize / 2;
-        y = 375 - settings.ballsize / 2;
+        x = 500 - width / 2;
+        y = 375 - height / 2;
         z = 0;
         dx = 0; dy = 0; dz = 0;
         ax = 0; ay = 0; az = 0;
@@ -55,7 +60,7 @@ var ball = (function() {
     
     function draw() {
         // render ball
-        gfx.drawSurface(surface, x, y, settings.ballsize, settings.ballsize, z);
+        gfx.drawSurface(surface, x, y, width, height, z);
         
         // render rectangle indicating z position of ball
         gfx.drawRect(0, 0, 1000, 750, z, gfx.color(93, 201, 198));
