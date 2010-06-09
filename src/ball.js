@@ -16,6 +16,8 @@ var Ball = GameObject.extend(function() {
     var dx,dy,dz;
     var ax,ay,az;
     
+    var bounced;
+    
     var width = BALLSIZE;
     var height = BALLSIZE;
     
@@ -26,8 +28,10 @@ var Ball = GameObject.extend(function() {
         resetPosition();
         
         input.mousedown(mousedown);
+        
         events.subscribe('service', service);
         events.subscribe('bounce', bounce);
+        events.subscribe('ballout', ballOut);
     }
     
     function resetPosition() {
@@ -64,7 +68,11 @@ var Ball = GameObject.extend(function() {
         
         // bounce
         if (atTarget()) {
+            bounced = false;
             events.fire('ballatend', x, y, z);
+            if (!bounced) {
+                events.fire('ballout');
+            }
         }
     }
     
@@ -90,6 +98,11 @@ var Ball = GameObject.extend(function() {
             z = -z;
         }
         dz = -dz;
+        bounced = true;
+    }
+    
+    function ballOut() {
+       status = STATUS_OUT;
     }
     
     function draw() {  
