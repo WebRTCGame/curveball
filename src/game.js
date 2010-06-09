@@ -14,28 +14,32 @@ var game = (function() {
         
         // Register events
         events.subscribe('service', service);
+        
+        // Set up timer
+        last = now();
     }
 
     // Main game loop
     function update() {
-        var time = 1.0 / FPS;
+        // Manage game timer
+        var elapsed = now() - last;
+        last = now();
+
+        // Update all objects
+        for(i in objects) {
+            objects[i].update(elapsed);
+        }
         
-        var elapsed = profile(function() {
-            // Update all objects
-            for(i in objects) {
-                objects[i].update(time);
-            }
-            
-            // Draw them to the screen
-            gfx.clear();
-            for(i in objects) {
-                objects[i].draw();
-            }
-        });
+        // Draw them to the screen
+        gfx.clear();
+        for(i in objects) {
+            objects[i].draw();
+        }
     }
     
     function service() {
         // activate timer
+        last = now();
         setInterval(update, 1000 / FPS);
     }
     

@@ -1,3 +1,7 @@
+function now() {
+    return new Date().getTime() / 1000.0;
+}
+
 function profile(code) {
     var start = new Date().getTime();
     code();
