@@ -2,11 +2,11 @@ var events = (function() {
     
     var listeners = {};
     
-    function subscribe(name, cb) {
+    function subscribe(name, obj, cb) {
         if (typeof listeners[name] == "undefined") {
             listeners[name] = [];
         }
-        listeners[name].push(cb);
+        listeners[name].push([obj, cb]);
     }
     
     function fire(name) {
@@ -14,7 +14,7 @@ var events = (function() {
         var length = listeners[name].length;
         for (var i = 0; i < length; i++) {
             var obj = listeners[name][i];
-            obj.apply(obj, arguments);
+            obj[1].apply(obj[0], arguments);
         }
     }
     

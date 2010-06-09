@@ -29,9 +29,9 @@ var Ball = GameObject.extend(function() {
         
         input.mousedown(mousedown);
         
-        events.subscribe('service', service);
-        events.subscribe('bounce', bounce);
-        events.subscribe('ballout', ballOut);
+        events.subscribe('service', this, service);
+        events.subscribe('bounce', this, bounce);
+        events.subscribe('ballout', this, ballOut);
     }
     
     function resetPosition() {
@@ -42,6 +42,10 @@ var Ball = GameObject.extend(function() {
         ax = 0; ay = 0; az = 0;
         status = STATUS_SERVICE;
         direction = DIRECTION_TOBACK;
+    }
+    
+    function getPosition() {
+        return [x, y];
     }
     
     function checkBounce(pad) {
@@ -116,6 +120,7 @@ var Ball = GameObject.extend(function() {
     return {
         init: init,
         draw: draw,
-        update: update
+        update: update,
+        getPosition: getPosition
     }
 }());

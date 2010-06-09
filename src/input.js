@@ -10,7 +10,7 @@ var input = (function() {
         return Math.min(max, Math.max(min, value));
     }
     
-    function mousemove(callback) {
+    function mousemove(obj, callback) {
         $(document).mousemove(function (e) {
             // Translate to in game coordinates
             var offset = ele.offset();
@@ -23,7 +23,7 @@ var input = (function() {
             x = projection.unX(x, 0);
             y = projection.unY(y, 0);
             
-            callback(x, y);
+            callback.call(obj, x, y);
             
             game.update();
         });

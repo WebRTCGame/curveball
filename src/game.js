@@ -7,13 +7,15 @@ var game = (function() {
         gfx.init('#screen');
         input.init('#screen');
 
-        // Initialize objects
+        // Initialize objects - order must be back to front
+        var ball = new Ball();
         objects.push(new Background());
-        objects.push(new Ball());
+        objects.push(new AIPad(1000, 'pad', ball));
+        objects.push(ball);
         objects.push(new PlayerPad(0, 'pad'));
         
         // Register events
-        events.subscribe('service', service);
+        events.subscribe('service', this, service);
         
         // Set up timer
         last = now();
