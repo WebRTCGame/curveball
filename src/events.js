@@ -10,9 +10,11 @@ var events = (function() {
     }
     
     function fire(name) {
-        var arguments = Array.prototype.slice(1, arguments);
-        for (var i = 0; i < listeners[name].length; i++) {
-            listeners[name][i].apply(arguments);
+        var arguments = Array.prototype.slice.call(arguments, 1);
+        var length = listeners[name].length;
+        for (var i = 0; i < length; i++) {
+            var obj = listeners[name][i];
+            obj.apply(obj, arguments);
         }
     }
     

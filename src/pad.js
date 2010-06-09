@@ -10,7 +10,10 @@ var Pad = GameObject.extend(function() {
         x = 500;
         y = 500;
         z = zpos;
+        
         surface = document.getElementById(id);
+        
+        events.subscribe('ballatend', ballAtEnd);
     }
     
     function draw() {
@@ -23,10 +26,15 @@ var Pad = GameObject.extend(function() {
     }
     
     function isOnPad(ball) {
-        return (x > ball.x - ball.width) &&
-               (x < ball.x + ball.width) &&
-               (y > ball.y - ball.height) &&
-               (y < ball.y + ball.height);
+    }
+    
+    function ballAtEnd(bx, by, bz) {
+        // check if it is on our side
+        if (Math.abs(z - bz) > 1000) {
+            return;
+        }
+        
+        events.fire('bounce');
     }
     
     return {

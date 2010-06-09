@@ -27,6 +27,7 @@ var Ball = GameObject.extend(function() {
         
         input.mousedown(mousedown);
         events.subscribe('service', service);
+        events.subscribe('bounce', bounce);
     }
     
     function resetPosition() {
@@ -45,7 +46,12 @@ var Ball = GameObject.extend(function() {
         }
     }
     
-    function update(time) {        
+    function update(time) {
+        // only update when ball is in play
+        if (status != STATUS_PLAY) {
+            return;
+        }
+        
         // update positions according to speed
         x += dx * time;
         y += dy * time;
@@ -57,18 +63,13 @@ var Ball = GameObject.extend(function() {
         dz += az * time;
         
         // bounce
-/*        if (z >= 1000) { 
-            checkBounce()
-        } */
-        if (z >= 1000) {
-            z = 2000 - z;
-            dz = -dz;
+        if (atTarget()) {
+            events.fire('ballatend', x, y, z);
         }
-        
-        if (z <= 0) {
-            z = -z;
-            dz = -dz;
-        }
+    }
+    
+    function atTarget() {
+        return (z <= 0 || z >= 1000);
     }
     
     function mousedown() {
@@ -79,9 +80,19 @@ var Ball = GameObject.extend(function() {
     
     function service() {
         dz = SPEED;
+        status = STATUS_PLAY;
     }
     
-    function draw() {        
+    function bounce() {
+        if (z >= 1000) {
+            z = 2000 - z;
+        } else {
+            z = -z;
+        }
+        dz = -dz;
+    }
+    
+    function draw() {  
         // render ball
         gfx.drawSurface(surface, x, y, width, height, z);
         
