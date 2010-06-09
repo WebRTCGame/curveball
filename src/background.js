@@ -1,7 +1,7 @@
 LINES = 10;
 LINECOLOR = "#0f0";
 
-var Background = Class.extend(function() {
+var Background = GameObject.extend(function() {
     
     // Adapt the color according to the z value
     function colorOf(z) {

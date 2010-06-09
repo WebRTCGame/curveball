@@ -8,7 +8,7 @@ DIRECTION_TOFRONT = 1;
 BALLSIZE = 120;
 SPEED = 300;
 
-var ball = (function() {
+var Ball = GameObject.extend(function() {
 
     var surface;
     
@@ -45,7 +45,7 @@ var ball = (function() {
         }
     }
     
-    function update(time) {
+    function update(time) {        
         // update positions according to speed
         x += dx * time;
         y += dy * time;
@@ -81,7 +81,7 @@ var ball = (function() {
         dz = SPEED;
     }
     
-    function draw() {
+    function draw() {        
         // render ball
         gfx.drawSurface(surface, x, y, width, height, z);
         

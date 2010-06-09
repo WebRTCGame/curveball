@@ -1,6 +1,6 @@
 var game = (function() {
     
-    var background, interval, pads = [];
+    var objects = [], interval;
     
     function init() {
         // Initialize subsystems
@@ -8,9 +8,9 @@ var game = (function() {
         input.init('#screen');
 
         // Initialize objects
-        background = new Background();
-        ball.init();
-        pads.push(new PlayerPad(0, 'pad'));
+        objects.push(new Background());
+        objects.push(new Ball());
+        objects.push(new PlayerPad(0, 'pad'));
         
         // Register events
         events.subscribe('service', service);
@@ -21,21 +21,17 @@ var game = (function() {
         var time = 1.0 / FPS;
         
         var elapsed = profile(function() {
-            // Update objects
-            ball.update(time);
-        
-            // Draw scene
-            draw();
+            // Update all objects
+            for(i in objects) {
+                objects[i].update(time);
+            }
+            
+            // Draw them to the screen
+            gfx.clear();
+            for(i in objects) {
+                objects[i].draw();
+            }
         });
-    }
-                
-    function draw() {
-        gfx.clear();
-        background.draw();
-        ball.draw();
-        for(i in pads) {
-            pads[i].draw();
-        }
     }
     
     function service() {

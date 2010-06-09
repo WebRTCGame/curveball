@@ -1,4 +1,4 @@
-var Pad = Class.extend(function() {
+var Pad = GameObject.extend(function() {
     
     var width = 200;
     var height = 160;
