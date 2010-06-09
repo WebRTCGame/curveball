@@ -29,11 +29,11 @@ var projection = (function() {
     }
     
     function scaleX(x, z) {
-        return (x / WIDTH) * gfx.getWidth();
+        return (x / WIDTH) * gfx.getWidth() * factor(z);
     }
 
     function scaleY(y, z) {
-        return (y / HEIGHT) * gfx.getHeight();
+        return (y / HEIGHT) * gfx.getHeight() * factor(z);
     }
 
     function project(val, total, projected, z) {
