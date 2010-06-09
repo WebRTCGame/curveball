@@ -39,7 +39,13 @@ var ball = (function() {
         direction = DIRECTION_TOBACK;
     }
     
-    function update(time) {                
+    function checkBounce(pad) {
+        if (!pad.isInside(x, y)) {
+            
+        }
+    }
+    
+    function update(time) {
         // update positions according to speed
         x += dx * time;
         y += dy * time;
@@ -51,6 +57,9 @@ var ball = (function() {
         dz += az * time;
         
         // bounce
+/*        if (z >= 1000) { 
+            checkBounce()
+        } */
         if (z >= 1000) {
             z = 2000 - z;
             dz = -dz;

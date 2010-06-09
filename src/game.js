@@ -1,6 +1,6 @@
 var game = (function() {
     
-    var background, interval;
+    var background, interval, pads = [];
     
     function init() {
         // Initialize subsystems
@@ -10,7 +10,7 @@ var game = (function() {
         // Initialize objects
         background = new Background();
         ball.init();
-        pad.init();
+        pads.push(new PlayerPad(0, 'pad'));
         
         // Register events
         events.subscribe('service', service);
@@ -33,7 +33,9 @@ var game = (function() {
         gfx.clear();
         background.draw();
         ball.draw();
-        pad.draw();
+        for(i in pads) {
+            pads[i].draw();
+        }
     }
     
     function service() {

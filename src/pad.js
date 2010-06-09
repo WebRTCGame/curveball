@@ -1,26 +1,25 @@
-var pad = (function() {
+var Pad = Class.extend(function() {
     
     var width = 200;
     var height = 160;
     
     var surface;
-    var x,y;
+    var x,y, z;
     
-    function init() {
+    function init(zpos, id) {
         x = 500;
         y = 500;
-        input.mousemove(update);
-        surface = document.getElementById('pad');
+        z = zpos;
+        surface = document.getElementById(id);
     }
     
     function draw() {
         gfx.drawSurface(surface, x, y, width, height, 0);
     }
     
-    function update(newx, newy) {
-        x = Math.min(newx, WIDTH - width);
-        y = Math.min(newy, HEIGHT - height);
-        $('#debug').html("x: " + x + " y: " + y);
+    function updatePos(xpos, ypos) {
+        x = xpos;
+        y = ypos;
     }
     
     function isOnPad(ball) {
@@ -32,7 +31,24 @@ var pad = (function() {
     
     return {
         init: init,
-        draw: draw
+        draw: draw,
+        updatePos: updatePos
     }
 }());
 
+var PlayerPad = Pad.extend(function() {
+    function init(zpos, surface) {
+        this._super(zpos, surface);
+        input.mousemove(this.updatePos);
+    }
+
+    function mousemove(newx, newy) {
+        x = Math.min(newx, WIDTH - width);
+        y = Math.min(newy, HEIGHT - height);
+        $('#debug').html("x: " + x + " y: " + y);
+    }
+    
+    return {
+        init: init
+    }
+}());
